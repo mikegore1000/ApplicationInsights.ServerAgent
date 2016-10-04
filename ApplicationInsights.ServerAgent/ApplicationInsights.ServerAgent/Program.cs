@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Configuration;
 using Microsoft.ApplicationInsights.Extensibility;
 using Topshelf;
 
@@ -34,41 +32,5 @@ namespace ApplicationInsights.ServerAgent
         public void Start() {}
 
         public void Dispose() {}
-    }
-
-    public class ServerAgent
-    {
-        private readonly IEnumerable<IEventLogPoller> pollers;
-        private bool started;
-
-        public ServerAgent(IEnumerable<IEventLogPoller> pollers)
-        {
-            this.pollers = pollers;
-            this.started = false;
-        }
-
-        public void Start()
-        {
-            if (started)
-            {
-                return;
-            }
-
-            foreach (var p in pollers)
-            {
-                p.Start();
-            }
-
-            started = true;
-        }
-
-        public void Stop()
-        {
-        }
-    }
-
-    public interface IEventLogPoller : IDisposable
-    {
-        void Start();
     }
 }
