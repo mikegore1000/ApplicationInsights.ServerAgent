@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace ApplicationInsights.ServerAgent.Tests
@@ -19,10 +20,23 @@ namespace ApplicationInsights.ServerAgent.Tests
             }
         }
 
+        [Fact]
+        public void when_starting_an_already_started_agent_nothing_happens()
+        {
+            var pollers = new List<FakeEventLogPoller> { new FakeEventLogPoller(), new FakeEventLogPoller() };
+
+            var sut = new ServerAgent(pollers);
+            sut.Start();
+            sut.Start();
+        }
+
         class FakeEventLogPoller : IEventLogPoller
         {
             public void Start()
             {
+                if(Started)
+                    throw new Exception("Already started");
+
                 Started = true;
             }
 
