@@ -10,7 +10,6 @@ namespace ApplicationInsights.ServerAgent
         public ServerAgent(IEnumerable<IEventLogPoller> pollers)
         {
             this.pollers = pollers;
-            this.started = false;
         }
 
         public void Start()
