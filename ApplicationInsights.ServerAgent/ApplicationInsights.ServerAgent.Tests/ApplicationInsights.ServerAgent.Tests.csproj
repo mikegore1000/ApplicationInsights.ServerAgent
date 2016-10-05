@@ -63,6 +63,7 @@
     <Compile Include="EventLogPollerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerAgentTests.cs" />
+    <Compile Include="TelemetrySenderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ApplicationInsights.ServerAgent\ApplicationInsights.ServerAgent.csproj">

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 
 namespace ApplicationInsights.ServerAgent
@@ -10,9 +10,16 @@ namespace ApplicationInsights.ServerAgent
 
     public class TelemetrySender : ITelemetrySender
     {
+        private readonly TelemetryClient client;
+
+        public TelemetrySender(TelemetryClient client)
+        {
+            this.client = client;
+        }
+
         public void SendTrace(TraceTelemetry trace)
         {
-            throw new NotImplementedException();
+            client.TrackTrace(trace);
         }
     }
 }
