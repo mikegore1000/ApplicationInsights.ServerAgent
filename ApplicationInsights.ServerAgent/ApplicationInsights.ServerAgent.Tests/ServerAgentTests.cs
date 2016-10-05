@@ -41,8 +41,6 @@ namespace ApplicationInsights.ServerAgent.Tests
             }
 
             public bool Started { get; private set; }
-
-            public void Dispose() {}
         }
     }
 }
