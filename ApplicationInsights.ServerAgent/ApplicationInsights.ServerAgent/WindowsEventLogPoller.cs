@@ -33,9 +33,9 @@ namespace ApplicationInsights.ServerAgent
                     var trace = TelemetryMapper.ToTrace(eventRecordWrittenEventArgs.EventRecord);
                     this.sender.SendTrace(trace);
                 }
-                catch (UnauthorizedAccessException)
-                {
-                }
+                // TODO: Think about how to handle these more gracefully
+                catch (EventLogException) { }
+                catch (UnauthorizedAccessException) { }
             }
         }
     }
