@@ -2,7 +2,7 @@
 
 namespace ApplicationInsights.ServerAgent
 {
-    public interface IEventLogPoller : IDisposable
+    public interface IEventLogPoller
     {
         void Start();
     }
