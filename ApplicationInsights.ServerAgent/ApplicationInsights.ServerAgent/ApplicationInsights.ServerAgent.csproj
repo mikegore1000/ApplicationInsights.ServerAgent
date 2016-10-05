@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Guard.cs" />
+    <Compile Include="TelemetryMapper.cs" />
     <Compile Include="TelemetrySender.cs" />
     <Compile Include="WindowsEventLogPoller.cs" />
     <Compile Include="IEventLogPoller.cs" />
