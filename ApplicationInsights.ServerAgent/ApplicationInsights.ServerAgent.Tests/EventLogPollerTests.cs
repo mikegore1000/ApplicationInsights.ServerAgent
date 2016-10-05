@@ -3,6 +3,7 @@ using System.Diagnostics.Eventing;
 using System.Diagnostics.Eventing.Reader;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights.DataContracts;
 using Xunit;
 
 namespace ApplicationInsights.ServerAgent.Tests
@@ -10,15 +11,17 @@ namespace ApplicationInsights.ServerAgent.Tests
     public class EventLogPollerTests
     {
         [Fact]
-        public void when_started_events_are_streamed()
+        public void when_started_events_are_streamed_to_the_telemetry_sender()
         {
-            EventRecord capturedEvent = null;
+            TraceTelemetry capturedEvent = null;
             var resetEvent = new ManualResetEventSlim();
-            var sut = new WindowsEventLogPoller("Application", e =>
+            var sender = new FakeTelemetrySender(e =>
             {
                 capturedEvent = e;
                 resetEvent.Set();
             });
+            
+            var sut = new WindowsEventLogPoller("Application", sender);
 
             sut.Start();
 
@@ -33,14 +36,29 @@ namespace ApplicationInsights.ServerAgent.Tests
         {
             Assert.Throws<ArgumentException>(() =>
             {
-                new WindowsEventLogPoller(logName, e => { });
+                new WindowsEventLogPoller(logName, new FakeTelemetrySender(null));
             });
         }
 
         [Fact]
-        public void when_an_invalid_callback_is_provided_an_exception_is_thrown()
+        public void when_an_invalid_telemetry_sender_is_provided_an_exception_is_thrown()
         {
             Assert.Throws<ArgumentNullException>(() => new WindowsEventLogPoller("Application", null));
+        }
+
+        private class FakeTelemetrySender : ITelemetrySender
+        {
+            private readonly Action<TraceTelemetry> onSendTrace;
+
+            public FakeTelemetrySender(Action<TraceTelemetry> onSendTrace)
+            {
+                this.onSendTrace = onSendTrace;
+            }
+
+            public void SendTrace(TraceTelemetry trace)
+            {
+                onSendTrace(trace);
+            }
         }
     }
 }
