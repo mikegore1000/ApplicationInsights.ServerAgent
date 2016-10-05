@@ -13,6 +13,7 @@ namespace ApplicationInsights.ServerAgent
             trace.Context.Cloud.RoleInstance = @event.MachineName;
             trace.Context.Device.Id = @event.MachineName;
             trace.Context.Device.OperatingSystem = Environment.OSVersion.VersionString;
+            trace.Context.Properties.Add("LogName", @event.LogName);
 
             return trace;
         }
