@@ -25,5 +25,22 @@ namespace ApplicationInsights.ServerAgent.Tests
             resetEvent.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
             Assert.NotNull(capturedEvent);
         }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void when_an_invalid_event_log_name_is_provided_an_exception_is_thrown(string logName)
+        {
+            Assert.Throws<ArgumentException>(() =>
+            {
+                new WindowsEventLogPoller(logName, e => { });
+            });
+        }
+
+        [Fact]
+        public void when_an_invalid_callback_is_provided_an_exception_is_thrown()
+        {
+            Assert.Throws<ArgumentNullException>(() => new WindowsEventLogPoller("Application", null));
+        }
     }
 }

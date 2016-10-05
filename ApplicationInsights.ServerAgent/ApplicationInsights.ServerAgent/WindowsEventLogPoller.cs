@@ -10,6 +10,9 @@ namespace ApplicationInsights.ServerAgent
 
         public WindowsEventLogPoller(string logName, Action<EventRecord> eventPolled)
         {
+            Guard.IsNotNullOrEmpty(nameof(logName), logName);
+            Guard.IsNotNull(nameof(eventPolled), eventPolled);
+
             this.eventPolled = eventPolled;
 
             watcher = new EventLogWatcher(new EventLogQuery(logName, PathType.LogName, "*"), null, true);
