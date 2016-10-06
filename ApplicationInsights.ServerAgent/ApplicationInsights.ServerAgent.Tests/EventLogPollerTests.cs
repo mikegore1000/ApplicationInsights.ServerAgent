@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Eventing;
 using System.Diagnostics.Eventing.Reader;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -27,6 +28,25 @@ namespace ApplicationInsights.ServerAgent.Tests
 
             resetEvent.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
             Assert.NotNull(capturedEvent);
+        }
+
+        [Fact]
+        public void when_started_events_are_bookmarked()
+        {
+            File.Delete("application-bookmark.txt");
+
+            var resetEvent = new ManualResetEventSlim();
+            var sender = new FakeTelemetrySender(e =>
+            {
+                resetEvent.Set();
+            });
+
+            var sut = new WindowsEventLogPoller("Application", sender);
+
+            sut.Start();
+
+            resetEvent.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+            Assert.True(File.Exists("application-bookmark.txt"), "bookmark file should have been created");
         }
 
         [Theory]
