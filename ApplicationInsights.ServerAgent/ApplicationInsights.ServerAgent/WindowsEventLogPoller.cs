@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics.Eventing.Reader;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ApplicationInsights.ServerAgent
 {
@@ -10,16 +8,18 @@ namespace ApplicationInsights.ServerAgent
         private readonly ITelemetrySender sender;
         private readonly EventLogWatcher watcher;
         private readonly string logName;
+        private readonly IBookmarker bookmarker;
 
-        public WindowsEventLogPoller(string logName, ITelemetrySender sender)
+        public WindowsEventLogPoller(string logName, ITelemetrySender sender, IBookmarker bookmarker)
         {
             Guard.IsNotNullOrEmpty(nameof(logName), logName);
             Guard.IsNotNull(nameof(sender), sender);
 
             this.sender = sender;
             this.logName = logName;
+            this.bookmarker = bookmarker;
 
-            watcher = new EventLogWatcher(new EventLogQuery(logName, PathType.LogName, "*"), null, true);
+            watcher = new EventLogWatcher(new EventLogQuery(logName, PathType.LogName, "*"), this.bookmarker.GetLatest(BookmarkName), true);
             watcher.EventRecordWritten += OnEventRecordWritten;
         }
 
@@ -36,7 +36,7 @@ namespace ApplicationInsights.ServerAgent
                 {
                     var trace = TelemetryMapper.ToTrace(eventRecordWrittenEventArgs.EventRecord);
                     this.sender.SendTrace(trace);
-                    Bookmark(eventRecordWrittenEventArgs.EventRecord.Bookmark);
+                    bookmarker.Bookmark(eventRecordWrittenEventArgs.EventRecord.Bookmark, BookmarkName);
 
                 }
                 // TODO: Think about how to handle these more gracefully
@@ -45,16 +45,6 @@ namespace ApplicationInsights.ServerAgent
             }
         }
 
-        private void Bookmark(EventBookmark bookmark)
-        {
-            var serializer = new BinaryFormatter();
-
-            using (var writer = File.OpenWrite(BookmarkName))
-            {
-                serializer.Serialize(writer, bookmark);
-            }
-        }
-
-        private string BookmarkName => $"{logName.ToLowerInvariant()}-bookmark.txt";
+        private string BookmarkName => $"{logName.ToLowerInvariant()}-bookmark";
     }
 }

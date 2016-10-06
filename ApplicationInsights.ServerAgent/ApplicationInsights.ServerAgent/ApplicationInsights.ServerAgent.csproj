@@ -72,7 +72,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileBookmarker.cs" />
     <Compile Include="Guard.cs" />
+    <Compile Include="IBookmarker.cs" />
     <Compile Include="TelemetryMapper.cs" />
     <Compile Include="TelemetrySender.cs" />
     <Compile Include="WindowsEventLogPoller.cs" />

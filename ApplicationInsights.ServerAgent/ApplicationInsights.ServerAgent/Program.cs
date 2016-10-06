@@ -37,7 +37,7 @@ namespace ApplicationInsights.ServerAgent
 
             foreach (var l in logs.Replace(" ", string.Empty).Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries))
             {
-                yield return new WindowsEventLogPoller(l, sender);
+                yield return new WindowsEventLogPoller(l, sender, new FileBookmarker());
             }
         }
     }

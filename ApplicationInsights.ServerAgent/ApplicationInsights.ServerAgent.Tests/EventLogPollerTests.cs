@@ -22,31 +22,30 @@ namespace ApplicationInsights.ServerAgent.Tests
                 resetEvent.Set();
             });
             
-            var sut = new WindowsEventLogPoller("Application", sender);
+            var sut = new WindowsEventLogPoller("Application", sender, new FakeBookmarker());
 
             sut.Start();
 
-            resetEvent.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
+            resetEvent.Wait(TimeSpan.FromSeconds(1));
             Assert.NotNull(capturedEvent);
         }
 
         [Fact]
         public void when_started_events_are_bookmarked()
         {
-            File.Delete("application-bookmark.txt");
-
             var resetEvent = new ManualResetEventSlim();
             var sender = new FakeTelemetrySender(e =>
             {
                 resetEvent.Set();
             });
+            var bookmarker = new FakeBookmarker();
 
-            var sut = new WindowsEventLogPoller("Application", sender);
+            var sut = new WindowsEventLogPoller("Application", sender, bookmarker);
 
             sut.Start();
 
-            resetEvent.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
-            Assert.True(File.Exists("application-bookmark.txt"), "bookmark file should have been created");
+            resetEvent.Wait(TimeSpan.FromSeconds(1));
+            Assert.NotNull(bookmarker.GetLatest("Application"));
         }
 
         [Theory]
@@ -56,14 +55,29 @@ namespace ApplicationInsights.ServerAgent.Tests
         {
             Assert.Throws<ArgumentException>(() =>
             {
-                new WindowsEventLogPoller(logName, new FakeTelemetrySender(null));
+                new WindowsEventLogPoller(logName, new FakeTelemetrySender(null), new FakeBookmarker());
             });
         }
 
         [Fact]
         public void when_an_invalid_telemetry_sender_is_provided_an_exception_is_thrown()
         {
-            Assert.Throws<ArgumentNullException>(() => new WindowsEventLogPoller("Application", null));
+            Assert.Throws<ArgumentNullException>(() => new WindowsEventLogPoller("Application", null, new FakeBookmarker()));
+        }
+
+        private class FakeBookmarker : IBookmarker
+        {
+            private EventBookmark latest;
+
+            public void Bookmark(EventBookmark bookmark, string bookmarkName)
+            {
+                latest = bookmark;
+            }
+
+            public EventBookmark GetLatest(string bookmarkName)
+            {
+                return latest;
+            }
         }
 
         private class FakeTelemetrySender : ITelemetrySender
