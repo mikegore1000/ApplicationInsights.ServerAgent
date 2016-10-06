@@ -14,7 +14,9 @@ namespace ApplicationInsights.ServerAgent
             HostFactory.Run(x =>
             {
                 TelemetryConfiguration.Active.InstrumentationKey = ConfigurationManager.AppSettings["InstrumentationKey"];
-                var sender = new TelemetrySender(new TelemetryClient());
+
+                var client = new TelemetryClient(TelemetryConfiguration.Active);
+                var sender = new TelemetrySender(client);
                 var pollers = CreatePollers(sender);
 
                 x.Service<ServerAgent>(s =>
