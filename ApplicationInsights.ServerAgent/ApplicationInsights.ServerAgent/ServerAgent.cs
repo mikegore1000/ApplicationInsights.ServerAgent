@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ApplicationInsights.ServerAgent
 {
@@ -6,6 +8,7 @@ namespace ApplicationInsights.ServerAgent
     {
         private readonly IEnumerable<IEventLogPoller> pollers;
         private bool started;
+        private CancellationTokenSource cancellationTokenSource;
 
         public ServerAgent(IEnumerable<IEventLogPoller> pollers)
         {
@@ -19,9 +22,12 @@ namespace ApplicationInsights.ServerAgent
                 return;
             }
 
+            var taskFactory = new TaskFactory();
+            cancellationTokenSource = new CancellationTokenSource();
+
             foreach (var p in pollers)
             {
-                p.Start();
+                taskFactory.StartNew(() => p.Start(), cancellationTokenSource.Token);
             }
 
             started = true;
@@ -29,6 +35,7 @@ namespace ApplicationInsights.ServerAgent
 
         public void Stop()
         {
+            cancellationTokenSource.Cancel();
         }
     }
 }
