@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Eventing.Reader;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ApplicationInsights.ServerAgent
 {
@@ -25,7 +27,7 @@ namespace ApplicationInsights.ServerAgent
 
         public void Start()
         {
-            watcher.Enabled = true;
+            new TaskFactory().StartNew(() => watcher.Enabled = true);
         }
 
         private void OnEventRecordWritten(object sender, EventRecordWrittenEventArgs eventRecordWrittenEventArgs)

@@ -8,7 +8,6 @@ namespace ApplicationInsights.ServerAgent
     {
         private readonly IEnumerable<IEventLogPoller> pollers;
         private bool started;
-        private CancellationTokenSource cancellationTokenSource;
 
         public ServerAgent(IEnumerable<IEventLogPoller> pollers)
         {
@@ -22,12 +21,9 @@ namespace ApplicationInsights.ServerAgent
                 return;
             }
 
-            var taskFactory = new TaskFactory();
-            cancellationTokenSource = new CancellationTokenSource();
-
             foreach (var p in pollers)
             {
-                taskFactory.StartNew(() => p.Start(), cancellationTokenSource.Token);
+                p.Start();
             }
 
             started = true;
@@ -35,7 +31,6 @@ namespace ApplicationInsights.ServerAgent
 
         public void Stop()
         {
-            cancellationTokenSource.Cancel();
         }
     }
 }
